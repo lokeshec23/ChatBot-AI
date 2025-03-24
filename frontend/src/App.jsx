@@ -91,17 +91,14 @@ const App = () => {
         </div>
 
         <div className="chat-box" ref={chatBoxRef}>
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`message ${
-                msg.sender === "You" ? "user-message" : "ai-message"
-              }`}
-            >
-              <strong>{msg.sender}:</strong> {msg.text}
-            </div>
-          ))}
+    {messages.map((msg, index) => (
+        <div key={index} className={`message ${msg.sender === "You" ? "user-message" : "ai-message"}`}>
+            <strong>{msg.sender}:</strong> 
+            <span dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, "<br>") }} />
         </div>
+    ))}
+</div>
+
         <div className="input-container">
           <input
             ref={INPUTREF}
