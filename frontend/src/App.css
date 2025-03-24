@@ -1,10 +1,7 @@
-/* App.css */
+/* Default Light Mode */
 body {
   background-color: #f0f0f0;
   font-family: Arial, sans-serif;
-  /* display: flex;
-  justify-content: center;
-  align-items: center; */
   height: 100vh;
   overflow-y: hidden;
 }
@@ -12,7 +9,7 @@ body {
 .chat-container {
   margin: 25px auto;
   width: 60%;
-  height: 85vh; /* Increased height */
+  height: 85vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -26,7 +23,7 @@ body {
   flex-grow: 1;
   border: 1px solid #ddd;
   padding: 15px;
-  height: calc(80vh - 120px); /* Dynamic height */
+  height: calc(80vh - 120px);
   overflow-y: auto;
   background: #ffffff;
   border-radius: 10px;
@@ -70,32 +67,96 @@ input {
   font-size: 16px;
 }
 
-.send_button{
+.send_button, .reset-button, .theme-toggle {
   padding: 12px 20px;
   border: none;
-  background: #28a745;
-  color: white;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   transition: background 0.3s;
+}
+
+.send_button {
+  background: #28a745;
+  color: white;
 }
 
 .send_button:hover {
   background: #218838;
 }
 
-.reset-button{
-  padding: 12px 20px;
-  border: none;
+.reset-button {
   background: lightgrey;
   color: #000;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
 }
 
-.reset-button:hover{
+.reset-button:hover {
   background-color: gray;
+}
+
+.theme-toggle {
+  background: #007bff;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.theme-toggle:hover {
+  background: #0056b3;
+}
+
+/* Dark Mode */
+.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+
+.dark-mode .chat-container {
+  background: #1e1e1e;
+  color: white;
+}
+
+.dark-mode .chat-box {
+  background: #2c2c2c;
+  border-color: #444;
+}
+
+.dark-mode .user-message {
+  background: #007bff;
+}
+
+.dark-mode .ai-message {
+  background: #333;
+  color: white;
+}
+
+.dark-mode input {
+  background: #444;
+  color: white;
+  border-color: #666;
+}
+
+.dark-mode .send_button {
+  background: #28a745;
+}
+
+.dark-mode .send_button:hover {
+  background: #218838;
+}
+
+.dark-mode .reset-button {
+  background: #777;
+  color: white;
+}
+
+.dark-mode .reset-button:hover {
+  background: #555;
+}
+
+.dark-mode .theme-toggle {
+  background: #bbb;
+  color: black;
+}
+
+.dark-mode .theme-toggle:hover {
+  background: #ddd;
 }
