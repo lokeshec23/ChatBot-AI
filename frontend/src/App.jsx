@@ -12,15 +12,15 @@ const App = () => {
 
   useEffect(() => {
     INPUTREF.current?.focus();
-    
-    let theme = localStorage.getItem('theme')
+
+    let theme = localStorage.getItem("theme");
     setDarkMode(theme);
     document.body.classList.toggle("dark-mode", theme);
   }, []);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
-    localStorage.setItem("theme", !darkMode)
+    localStorage.setItem("theme", !darkMode);
     document.body.classList.toggle("dark-mode", !darkMode);
   };
 
@@ -54,7 +54,10 @@ const App = () => {
   };
 
   useEffect(() => {
-    chatBoxRef.current?.scrollTo({ top: chatBoxRef.current.scrollHeight, behavior: "smooth" });
+    chatBoxRef.current?.scrollTo({
+      top: chatBoxRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const resetMessage = () => {
@@ -71,12 +74,17 @@ const App = () => {
   return (
     <>
       <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
-        <div style={{
-          display: "flex",
-          justifyContent: " space-between",
-          alignItems: "center"
-        }}>
-          <h1>AI Chatbot</h1>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: " space-between",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "flex" , gap: '10px' }}>
+            <img src="/vite.svg" />
+            <h1>AI Chatbot</h1>
+          </div>
           <button className="theme-toggle" onClick={toggleTheme}>
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
@@ -86,8 +94,9 @@ const App = () => {
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`message ${msg.sender === "You" ? "user-message" : "ai-message"
-                }`}
+              className={`message ${
+                msg.sender === "You" ? "user-message" : "ai-message"
+              }`}
             >
               <strong>{msg.sender}:</strong> {msg.text}
             </div>
