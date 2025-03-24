@@ -50,7 +50,7 @@ const App = () => {
 
   useEffect(() => {
     chatBoxRef.current?.scrollTo({ top: chatBoxRef.current.scrollHeight, behavior: "smooth" });
-}, [messages]);
+  }, [messages]);
 
   const resetMessage = () => {
     setInput("");
@@ -65,20 +65,24 @@ const App = () => {
 
   return (
     <>
-      <div style={{display:'flex', justifyContent:'flex-end'}}> 
-        <button className="theme-toggle" onClick={toggleTheme}>
-          {darkMode ? "Light Mode" : "Dark Mode"}
-        </button>
-      </div>
       <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
-        <h1>AI Chatbot</h1>
+        <div style={{
+          display: "flex",
+          justifyContent: " space-between",
+          alignItems: "center"
+        }}>
+          <h1>AI Chatbot</h1>
+          <button className="theme-toggle" onClick={toggleTheme}>
+            {darkMode ? "Light Mode" : "Dark Mode"}
+          </button>
+        </div>
+
         <div className="chat-box" ref={chatBoxRef}>
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`message ${
-                msg.sender === "You" ? "user-message" : "ai-message"
-              }`}
+              className={`message ${msg.sender === "You" ? "user-message" : "ai-message"
+                }`}
             >
               <strong>{msg.sender}:</strong> {msg.text}
             </div>
