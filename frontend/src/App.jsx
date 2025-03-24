@@ -83,7 +83,7 @@ const App = () => {
         >
           <div style={{ display: "flex" , gap: '10px' }}>
             <img src="/vite.svg" />
-            <h1>AI Chatbot</h1>
+            <h1>AI Chat Bot</h1>
           </div>
           <button className="theme-toggle" onClick={toggleTheme}>
             {darkMode ? "Light Mode" : "Dark Mode"}
