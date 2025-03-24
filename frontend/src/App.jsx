@@ -8,6 +8,7 @@ const App = () => {
   const [isDisabled, setIsDisable] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const INPUTREF = useRef(null);
+  const chatBoxRef = useRef(null);
 
   useEffect(() => {
     INPUTREF.current?.focus();
@@ -47,6 +48,10 @@ const App = () => {
     setInput("");
   };
 
+  useEffect(() => {
+    chatBoxRef.current?.scrollTo({ top: chatBoxRef.current.scrollHeight, behavior: "smooth" });
+}, [messages]);
+
   const resetMessage = () => {
     setInput("");
     setMessages([]);
@@ -67,7 +72,7 @@ const App = () => {
       </div>
       <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
         <h1>AI Chatbot</h1>
-        <div className="chat-box">
+        <div className="chat-box" ref={chatBoxRef}>
           {messages.map((msg, index) => (
             <div
               key={index}
