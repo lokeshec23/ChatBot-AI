@@ -12,10 +12,15 @@ const App = () => {
 
   useEffect(() => {
     INPUTREF.current?.focus();
+    
+    let theme = localStorage.getItem('theme')
+    setDarkMode(theme);
+    document.body.classList.toggle("dark-mode", theme);
   }, []);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
+    localStorage.setItem("theme", !darkMode)
     document.body.classList.toggle("dark-mode", !darkMode);
   };
 
