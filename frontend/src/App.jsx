@@ -18,6 +18,16 @@ const App = () => {
     document.body.classList.toggle("dark-mode", theme);
   }, []);
 
+  useEffect(() => {
+    if(!chatBoxRef.current) return
+
+    chatBoxRef.current?.scrollTo({ 
+        top: chatBoxRef.current.scrollHeight, 
+        behavior: "smooth" 
+    });
+}, [messages]);
+
+
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     localStorage.setItem("theme", !darkMode);
@@ -25,33 +35,32 @@ const App = () => {
   };
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
-    setIsDisable(true);
+    if (!input.trim()) return; // Prevent sending empty messages
+    setIsDisable(true); // Disable input while processing
 
     const userMessage = { sender: "You", text: input };
+    setMessages((prevMessages) => [...prevMessages, userMessage, { sender: "AI", text: "Thinking..." }]);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/chat", {
-        message: input,
-      });
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        userMessage,
-        { sender: "AI", text: response.data.response },
-      ]);
+        const response = await axios.post("http://127.0.0.1:8000/chat", { message: input });
+
+        // Replace "Thinking..." with the actual response
+        setMessages((prevMessages) =>
+            prevMessages.slice(0, -1).concat({ sender: "AI", text: response.data.response })
+        );
     } catch (error) {
-      console.error("Error fetching response:", error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        userMessage,
-        { sender: "AI", text: "Something went wrong. Please try again" },
-      ]);
+        console.error("Error fetching response:", error);
+        
+        // Replace "Thinking..." with an error message
+        setMessages((prevMessages) =>
+            prevMessages.slice(0, -1).concat({ sender: "AI", text: "Something went wrong. Please try again" })
+        );
     } finally {
-      setIsDisable(false);
+        setIsDisable(false); // Re-enable input
     }
 
-    setInput("");
-  };
+    setInput(""); // Clear input field after sending
+};
 
   useEffect(() => {
     chatBoxRef.current?.scrollTo({
