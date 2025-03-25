@@ -42,7 +42,7 @@ const App = () => {
     setMessages((prevMessages) => [...prevMessages, userMessage, { sender: "AI", text: "Thinking..." }]);
 
     try {
-        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}chat` , { message: input });
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/chat` , { message: input });
 
         // Replace "Thinking..." with the actual response
         setMessages((prevMessages) =>
