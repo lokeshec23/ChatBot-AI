@@ -11,7 +11,7 @@ load_dotenv()
 app = FastAPI()
 
 # Replace with your actual frontend URL
-FRONTEND_URL = "https://chat-bot-ai-fronent-bt62a716x-lokeshec23s-projects.vercel.app"
+FRONTEND_URL = "https://chatbot-ai-backend-r2gc0vwtl-lokeshec23s-projects.vercel.app/"
 
 # Allow frontend to access backend
 app.add_middleware(
