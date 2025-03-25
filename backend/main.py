@@ -10,10 +10,13 @@ load_dotenv()
 
 app = FastAPI()
 
+# Replace with your actual frontend URL
+FRONTEND_URL = "https://chat-bot-ai-fronent-bt62a716x-lokeshec23s-projects.vercel.app"
+
 # Allow frontend to access backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (or use ["http://localhost:5173"] for security)
+    allow_origins=[FRONTEND_URL],  # Allow only the frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
