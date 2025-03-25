@@ -81,7 +81,7 @@ const App = () => {
             alignItems: "center",
           }}
         >
-          <div style={{ display: "flex" , gap: '10px' }}>
+          <div style={{ display: "flex", gap: "10px" }}>
             <img src="/vite.svg" />
             <h1>AI Chat Bot</h1>
           </div>
@@ -91,13 +91,22 @@ const App = () => {
         </div>
 
         <div className="chat-box" ref={chatBoxRef}>
-    {messages.map((msg, index) => (
-        <div key={index} className={`message ${msg.sender === "You" ? "user-message" : "ai-message"}`}>
-            <strong>{msg.sender}:</strong> 
-            <span dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, "<br>") }} />
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`message ${
+                msg.sender === "You" ? "user-message" : "ai-message"
+              }`}
+            >
+              <strong>{msg.sender}: </strong>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: msg.text.replace(/\n/g, "<br>"),
+                }}
+              />
+            </div>
+          ))}
         </div>
-    ))}
-</div>
 
         <div className="input-container">
           <input
