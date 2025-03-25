@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
@@ -15,8 +19,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize the Groq client
-GROQ_API_KEY = "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"  # Replace with your actual Groq API key
+# Fetch API Key from environment variables
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY is missing in the .env file!")
+
 client = Groq(api_key=GROQ_API_KEY)
 
 class ChatRequest(BaseModel):
