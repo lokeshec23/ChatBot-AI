@@ -122,8 +122,12 @@ const App = () => {
               <span
                 dangerouslySetInnerHTML={{
                   __html: msg.text
-                    .replace(/\n/g, "<br>") // Handle line breaks
-                    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"), // Make **wrapped words** bold
+                    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // Make **wrapped words** bold
+                    .replace(
+                      /(\n?[-•\d+]\.\s.*?)(?=\n[-•\d+]\.|\n*$)/g,
+                      "$1<br>"
+                    ) // Ensure single new line between bullets/numbers
+                    .replace(/\n/g, "<br>"), // Convert other new lines to <br>
                 }}
               />
             </div>
