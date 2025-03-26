@@ -19,14 +19,13 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if(!chatBoxRef.current) return
+    if (!chatBoxRef.current) return;
 
-    chatBoxRef.current?.scrollTo({ 
-        top: chatBoxRef.current.scrollHeight, 
-        behavior: "smooth" 
+    chatBoxRef.current?.scrollTo({
+      top: chatBoxRef.current.scrollHeight,
+      behavior: "smooth",
     });
-}, [messages]);
-
+  }, [messages]);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -39,28 +38,40 @@ const App = () => {
     setIsDisable(true); // Disable input while processing
 
     const userMessage = { sender: "You", text: input };
-    setMessages((prevMessages) => [...prevMessages, userMessage, { sender: "AI", text: "Thinking..." }]);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      userMessage,
+      { sender: "AI", text: "Thinking..." },
+    ]);
 
     try {
-        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/chat` , { message: input });
+      const response = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_URL}/chat`,
+        { message: input }
+      );
 
-        // Replace "Thinking..." with the actual response
-        setMessages((prevMessages) =>
-            prevMessages.slice(0, -1).concat({ sender: "AI", text: response.data.response })
-        );
+      // Replace "Thinking..." with the actual response
+      setMessages((prevMessages) =>
+        prevMessages
+          .slice(0, -1)
+          .concat({ sender: "AI", text: response.data.response })
+      );
     } catch (error) {
-        console.error("Error fetching response:", error);
-        
-        // Replace "Thinking..." with an error message
-        setMessages((prevMessages) =>
-            prevMessages.slice(0, -1).concat({ sender: "AI", text: "Something went wrong. Please try again" })
-        );
+      console.error("Error fetching response:", error);
+
+      // Replace "Thinking..." with an error message
+      setMessages((prevMessages) =>
+        prevMessages.slice(0, -1).concat({
+          sender: "AI",
+          text: "Something went wrong. Please try again",
+        })
+      );
     } finally {
-        setIsDisable(false); // Re-enable input
+      setIsDisable(false); // Re-enable input
     }
 
     setInput(""); // Clear input field after sending
-};
+  };
 
   useEffect(() => {
     chatBoxRef.current?.scrollTo({
@@ -110,7 +121,9 @@ const App = () => {
               <strong>{msg.sender}: </strong>
               <span
                 dangerouslySetInnerHTML={{
-                  __html: msg.text.replace(/\n/g, "<br>"),
+                  __html: msg.text
+                    .replace(/\n/g, "<br>") // Handle line breaks
+                    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"), // Make **wrapped words** bold
                 }}
               />
             </div>
