@@ -67,7 +67,10 @@ input {
   font-size: 16px;
 }
 
-.send_button, .reset-button, .theme-toggle {
+.send_button,
+.reset-button,
+.theme-toggle,
+.chat-mode-toggle {
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
@@ -94,13 +97,27 @@ input {
   background-color: gray;
 }
 
-.theme-toggle {
+.theme-toggle,
+.chat-mode-toggle {
   background: #007bff;
   color: white;
-  margin-bottom: 10px;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.chat-mode-toggle:hover {
+  background: #0056b3;
+}
+
+.upload-button {
+  padding: 12px 20px;
+  background: #007bff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.upload-button:hover {
   background: #0056b3;
 }
 
@@ -152,11 +169,22 @@ input {
   background: #555;
 }
 
-.dark-mode .theme-toggle {
+.dark-mode .theme-toggle,
+.dark-mode .chat-mode-toggle {
   background: #bbb;
   color: black;
 }
 
-.dark-mode .theme-toggle:hover {
+.dark-mode .theme-toggle:hover,
+.dark-mode .chat-mode-toggle:hover {
+  background: #ddd;
+}
+
+.dark-mode .upload-button {
+  background: #bbb;
+  color: black;
+}
+
+.dark-mode .upload-button:hover {
   background: #ddd;
 }
