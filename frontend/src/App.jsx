@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./App.css";
-
+import { marked } from "marked";
 const App = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
@@ -223,8 +223,16 @@ const App = () => {
               msg.sender === "You" ? "user-message" : "ai-message"
             }`}
           >
-            <strong>{msg.sender}: </strong>
-            <span>{msg.text}</span>
+            {/* <strong>{msg.sender}: </strong> */}
+            {msg.sender === "You" ? (
+              <span>{msg.text}</span>
+            ) : (
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: marked.parse(msg.text),
+                }}
+              />
+            )}
           </div>
         ))}
       </div>
