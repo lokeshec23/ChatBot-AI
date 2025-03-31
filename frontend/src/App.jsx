@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./App.css";
-import { marked } from "marked";
+// import  marked  from "marked";
 
 const App = () => {
   const [input, setInput] = useState("");
@@ -228,15 +228,15 @@ const App = () => {
             }`}
           >
             {/* <strong>{msg.sender}: </strong> */}
-            {msg.sender === "You" ? (
-              <span>{msg.text}</span>
+            <span>{msg.text}</span>
+            {/* {msg.sender === "You" ? (
             ) : (
               <span
                 dangerouslySetInnerHTML={{
                   __html: marked.parse(msg.text),
                 }}
               />
-            )}
+            )} */}
           </div>
         ))}
       </div>

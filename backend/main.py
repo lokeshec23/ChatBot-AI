@@ -16,7 +16,7 @@ load_dotenv()
 app = FastAPI()
 
 # CORS Configuration
-FRONTEND_URL = "http://localhost:5173"  # Replace with your frontend URL
+FRONTEND_URL = "https://ldchatbot.netlify.app/"  # Replace with your frontend URL
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL],
