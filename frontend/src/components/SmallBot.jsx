@@ -27,6 +27,8 @@ const SmallBot = ({ setSmallBot }) => {
           `${import.meta.env.VITE_REACT_APP_URL}/suggestions`,
           { message: lastUserMessage.text }
         );
+        const filteredSuggestions = response.data.suggestions.slice(1); // Removes the first element
+        // console.log("Filtered Suggestions:", {filteredSuggestions,ab:response.data.suggestions});
         setSuggestions(response.data.suggestions || []);
       } catch (error) {
         console.error("Error fetching suggestions:", error);
