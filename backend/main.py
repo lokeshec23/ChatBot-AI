@@ -156,6 +156,39 @@ async def query_pdf(request: ChatRequest):
         print(f"Unexpected Error: {str(e)}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
+@app.post("/smallchat")
+async def chat(request: ChatRequest):
+    """
+    Endpoint for general chat. Accepts user input and sends it to Groq API.
+    """
+    try:
+        user_input = request.message
+
+        # Use Groq API to generate a short response
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": user_input,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            max_tokens=50,  # Limit the response length
+            temperature=0.7,  # Control randomness
+            stream=False,
+        )
+
+        # Extract and return the AI's response
+        response_text = chat_completion.choices[0].message.content.strip()
+        return {"response": response_text}
+
+    except Exception as e:
+        print(f"Error in /smallchat endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process the request.")
+
+
+
+
 @app.get("/")
 def home():
     """
