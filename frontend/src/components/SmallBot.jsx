@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 const THINKING_MESSAGE = "Thinking...";
@@ -6,20 +6,41 @@ const ERROR_MESSAGE = "Sorry, something went wrong. Please try again.";
 
 const SmallBot = ({ setSmallBot }) => {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([{
-    "sender": "AI",
-    "text": "Hi, How can I assist you today?"
-}]);
+  const [messages, setMessages] = useState([{ sender: "AI", text: "Hi, How can I assist you today?" }]);
   const [isDisabled, setIsDisabled] = useState(false);
-  useEffect(() => {
-    console.log("Messages updated:", messages);
-  },[messages])
+  const [suggestions, setSuggestions] = useState([]);
+  const [width, setWidth] = useState(500); // Default width of chat window
+  const [left, setLeft] = useState(window.innerWidth - 520); // Position from left
+  const isResizing = useRef(false);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
+  const startLeft = useRef(0);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const lastUserMessage = messages.filter((msg) => msg.sender === "You").pop();
+    if (!lastUserMessage) return;
+
+    const fetchSuggestions = async () => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_REACT_APP_URL}/suggestions`,
+          { message: lastUserMessage.text }
+        );
+        setSuggestions(response.data.suggestions || []);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+      }
+    };
+
+    fetchSuggestions();
+  }, [messages]);
+
+  const sendMessage = async (query = input) => {
+    if (!query.trim()) return;
 
     setIsDisabled(true);
-    const userMessage = { sender: "You", text: input };
+    const userMessage = { sender: "You", text: query };
     setMessages((prevMessages) => [
       ...prevMessages,
       userMessage,
@@ -27,19 +48,14 @@ const SmallBot = ({ setSmallBot }) => {
     ]);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_URL}/smallchat`,
-        { message: input }
-      );
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/smallchat`, { message: query });
 
       if (!response.data || !response.data.response) {
         throw new Error("Invalid API response");
       }
 
       setMessages((prevMessages) =>
-        prevMessages
-          .slice(0, -1)
-          .concat({ sender: "AI", text: response.data.response })
+        prevMessages.slice(0, -1).concat({ sender: "AI", text: response.data.response })
       );
     } catch (error) {
       console.error("Error fetching response:", error);
@@ -53,13 +69,40 @@ const SmallBot = ({ setSmallBot }) => {
     setInput("");
   };
 
+  // Handle resizing from the left side
+  const handleMouseDown = (e) => {
+    isResizing.current = true;
+    startX.current = e.clientX;
+    startWidth.current = width;
+    startLeft.current = left;
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleMouseMove = (e) => {
+    if (isResizing.current) {
+      const deltaX = e.clientX - startX.current;
+      const newWidth = Math.max(300, startWidth.current - deltaX); // Min width: 300px
+      const newLeft = Math.min(window.innerWidth - 300, startLeft.current + deltaX); // Prevent overflow
+
+      setWidth(newWidth);
+      setLeft(newLeft);
+    }
+  };
+
+  const handleMouseUp = () => {
+    isResizing.current = false;
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+  };
+
   return (
     <div
       style={{
         position: "fixed",
         bottom: "80px",
-        right: "20px",
-        width: "500px",
+        left: `${left}px`,
+        width: `${width}px`,
         height: "700px",
         backgroundColor: "#fff",
         borderRadius: "10px",
@@ -121,6 +164,36 @@ const SmallBot = ({ setSmallBot }) => {
         ))}
       </div>
 
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div
+          style={{
+            padding: "10px",
+            backgroundColor: "#f9f9f9",
+            borderBottom: "1px solid #ddd",
+          }}
+        >
+          {/* <strong>Suggestions:</strong> */}
+          <div style={{ display: "flex", gap: "5px", marginTop: "5px" }}>
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                onClick={() => sendMessage(suggestion)}
+                style={{
+                  backgroundColor: "#ddd",
+                  border: "none",
+                  padding: "5px 10px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input Area */}
       <div
         style={{
@@ -142,7 +215,7 @@ const SmallBot = ({ setSmallBot }) => {
             border: "1px solid #ccc",
             outline: "none",
           }}
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           disabled={isDisabled}
         />
         <button
@@ -161,6 +234,20 @@ const SmallBot = ({ setSmallBot }) => {
           Send
         </button>
       </div>
+
+      {/* Resize Handle (Left Side) */}
+      <div
+        onMouseDown={handleMouseDown}
+        style={{
+          position: "absolute",
+          top: "0",
+          left: "0",
+          width: "10px",
+          height: "100%",
+          cursor: "ew-resize",
+          backgroundColor: "transparent",
+        }}
+      />
     </div>
   );
 };

@@ -186,6 +186,32 @@ async def chat(request: ChatRequest):
         print(f"Error in /smallchat endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to process the request.")
 
+@app.post("/suggestions")
+async def get_suggestions(request: ChatRequest):
+    """
+    Generate relevant follow-up questions based on the user's last query.
+    """
+    try:
+        user_input = request.message
+
+        # Generate relevant questions using the LLM
+        suggestion_response = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": f"Suggest three relevant follow-up questions based on: {user_input}"}
+            ],
+            model="llama-3.3-70b-versatile",
+            max_tokens=100,  # Limit response size
+            temperature=0.7,
+            stream=False,
+        )
+
+        suggestions_text = suggestion_response.choices[0].message.content
+        suggestions = [s.strip() for s in suggestions_text.split("\n") if s.strip()]
+
+        return {"suggestions": suggestions[:3]}  # Limit to 3 suggestions
+    except Exception as e:
+        print(f"Error in /suggestions endpoint: {str(e)}")
+        return {"suggestions": []}  # Return empty list if error occurs
 
 
 
