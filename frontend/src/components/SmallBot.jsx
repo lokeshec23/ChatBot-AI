@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { marked } from "marked";
 
 const THINKING_MESSAGE = "Thinking...";
 const ERROR_MESSAGE = "Sorry, something went wrong. Please try again.";
@@ -7,7 +8,10 @@ const ERROR_MESSAGE = "Sorry, something went wrong. Please try again.";
 const SmallBot = ({ setSmallBot }) => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { sender: "AI", text: "Hello. I'm here to help with any questions you have about US mortgages, including calculations, loan types, interest rates, and related financial concepts. What's on your mind?" },
+    {
+      sender: "AI",
+      text: "Hello. I'm here to help with any questions you have about US mortgages, including calculations, loan types, interest rates, and related financial concepts. What's on your mind?",
+    },
   ]);
   const [isDisabled, setIsDisabled] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
@@ -176,7 +180,15 @@ const SmallBot = ({ setSmallBot }) => {
               maxWidth: "80%",
             }}
           >
-            {msg.text}
+            {/* / {msg.text} */}
+            {
+              msg.sender === "You" ? <span>{msg.text}</span> : 
+            <span
+              dangerouslySetInnerHTML={{
+                __html: marked.parse(msg.text),
+              }}
+            />
+            }
           </div>
         ))}
       </div>
