@@ -166,12 +166,16 @@ async def chat(request: ChatRequest):
 
         # Use Groq API to generate a short response
         chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": user_input,
-                }
-            ],
+             messages=[
+        {
+            "role": "system",
+            "content": "You are an expert in US mortgage-related topics. Answer questions only related to US mortgage calculations, loan types, interest rates, and related financial concepts. If the question is unrelated, politely inform the user that you only provide US mortgage information."
+        },
+        {
+            "role": "user",
+            "content": user_input,
+        }
+    ],
             model="llama-3.3-70b-versatile",
             max_tokens=50,  # Limit the response length
             temperature=0.7,  # Control randomness
