@@ -26,7 +26,7 @@ const SmallBot = ({ setSmallBot }) => {
     if (messages.length === 0) return;
     const lastUserMessage = messages
       .filter((msg) => msg.sender === "You")
-      .pop();
+      .pop(); 
     if (!lastUserMessage) return;
 
     const fetchSuggestions = async () => {
