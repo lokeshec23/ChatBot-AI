@@ -197,7 +197,7 @@ async def get_suggestions(request: ChatRequest):
         # Generate relevant questions using the LLM
         suggestion_response = client.chat.completions.create(
             messages=[
-                {"role": "user", "content": f"Suggest three relevant follow-up questions based on: {user_input}. Just give me the questions, no explanations also don't repeat the original question. No add header."}
+                {"role": "user", "content": f"Suggest three relevant follow-up questions based on: {user_input}. Just give me the questions, no explanations also ."}
             ],
             model="llama-3.3-70b-versatile",
             max_tokens=100,  # Limit response size

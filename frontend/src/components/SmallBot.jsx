@@ -6,7 +6,9 @@ const ERROR_MESSAGE = "Sorry, something went wrong. Please try again.";
 
 const SmallBot = ({ setSmallBot }) => {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([{ sender: "AI", text: "Hi, How can I assist you today?" }]);
+  const [messages, setMessages] = useState([
+    { sender: "AI", text: "Hello. I'm here to help with any questions you have about US mortgages, including calculations, loan types, interest rates, and related financial concepts. What's on your mind?" },
+  ]);
   const [isDisabled, setIsDisabled] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [width, setWidth] = useState(500); // Default width of chat window
@@ -18,7 +20,9 @@ const SmallBot = ({ setSmallBot }) => {
 
   useEffect(() => {
     if (messages.length === 0) return;
-    const lastUserMessage = messages.filter((msg) => msg.sender === "You").pop();
+    const lastUserMessage = messages
+      .filter((msg) => msg.sender === "You")
+      .pop();
     if (!lastUserMessage) return;
 
     const fetchSuggestions = async () => {
@@ -39,6 +43,9 @@ const SmallBot = ({ setSmallBot }) => {
   }, [messages]);
 
   const sendMessage = async (query = input) => {
+    if (typeof query == "object") {
+      query = input;
+    }
     if (!query.trim()) return;
 
     setIsDisabled(true);
@@ -50,14 +57,19 @@ const SmallBot = ({ setSmallBot }) => {
     ]);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_URL}/smallchat`, { message: query });
+      const response = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_URL}/smallchat`,
+        { message: query }
+      );
 
       if (!response.data || !response.data.response) {
         throw new Error("Invalid API response");
       }
 
       setMessages((prevMessages) =>
-        prevMessages.slice(0, -1).concat({ sender: "AI", text: response.data.response })
+        prevMessages
+          .slice(0, -1)
+          .concat({ sender: "AI", text: response.data.response })
       );
     } catch (error) {
       console.error("Error fetching response:", error);
@@ -85,7 +97,10 @@ const SmallBot = ({ setSmallBot }) => {
     if (isResizing.current) {
       const deltaX = e.clientX - startX.current;
       const newWidth = Math.max(300, startWidth.current - deltaX); // Min width: 300px
-      const newLeft = Math.min(window.innerWidth - 300, startLeft.current + deltaX); // Prevent overflow
+      const newLeft = Math.min(
+        window.innerWidth - 300,
+        startLeft.current + deltaX
+      ); // Prevent overflow
 
       setWidth(newWidth);
       setLeft(newLeft);
