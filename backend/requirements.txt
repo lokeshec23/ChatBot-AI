@@ -3,3 +3,4 @@ uvicorn
 pydantic
 python-dotenv
 groq  # Add any other dependencies here
+pdfplumber
