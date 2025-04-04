@@ -5,7 +5,7 @@ import { marked } from "marked";
 const THINKING_MESSAGE = "Thinking...";
 const ERROR_MESSAGE = "Sorry, something went wrong. Please try again.";
 
-const SmallBot = ({ setSmallBot }) => {
+const SmallBot = ({ setSmallBot, darkMode, setDarkMode }) => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     {
@@ -125,7 +125,8 @@ const SmallBot = ({ setSmallBot }) => {
         left: `${left}px`,
         width: `${width}px`,
         height: "700px",
-        backgroundColor: "#fff",
+        backgroundColor: darkMode ? "#1e1e1e" : "#fff",
+        color: darkMode ? "#f0f0f0" : "#000",
         borderRadius: "10px",
         boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
         display: "flex",
@@ -138,7 +139,7 @@ const SmallBot = ({ setSmallBot }) => {
       {/* Header */}
       <div
         style={{
-          backgroundColor: "#0078ff",
+          backgroundColor: darkMode ? "#333" : "#0078ff",
           color: "#fff",
           padding: "10px",
           textAlign: "center",
@@ -156,7 +157,7 @@ const SmallBot = ({ setSmallBot }) => {
           X
         </div>
       </div>
-
+  
       {/* Chat Area */}
       <div
         style={{
@@ -173,43 +174,56 @@ const SmallBot = ({ setSmallBot }) => {
             key={index}
             style={{
               alignSelf: msg.sender === "You" ? "flex-end" : "flex-start",
-              backgroundColor: msg.sender === "You" ? "#0078ff" : "#f1f1f1",
-              color: msg.sender === "You" ? "white" : "black",
+              backgroundColor:
+                msg.sender === "You"
+                  ? darkMode
+                    ? "#0a84ff"
+                    : "#0078ff"
+                  : darkMode
+                  ? "#333"
+                  : "#f1f1f1",
+              color:
+                msg.sender === "You"
+                  ? "white"
+                  : darkMode
+                  ? "#f0f0f0"
+                  : "black",
               padding: "8px 12px",
               borderRadius: "10px",
               maxWidth: "80%",
+              lineHeight: "1.5", 
             }}
           >
-            {/* / {msg.text} */}
-            {
-              msg.sender === "You" ? <span>{msg.text}</span> : 
-            <span
-              dangerouslySetInnerHTML={{
-                __html: marked.parse(msg.text),
-              }}
-            />
-            }
+            {msg.sender === "You" ? (
+              <span>{msg.text}</span>
+            ) : (
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: marked.parse(msg.text),
+                }}
+              />
+            )}
           </div>
         ))}
       </div>
-
+  
       {/* Suggestions */}
       {suggestions.length > 0 && (
         <div
           style={{
             padding: "10px",
-            backgroundColor: "#f9f9f9",
-            borderBottom: "1px solid #ddd",
+            backgroundColor: darkMode ? "#2a2a2a" : "#f9f9f9",
+            borderBottom: `1px solid ${darkMode ? "#444" : "#ddd"}`,
           }}
         >
-          {/* <strong>Suggestions:</strong> */}
           <div style={{ display: "flex", gap: "5px", marginTop: "5px" }}>
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => sendMessage(suggestion)}
                 style={{
-                  backgroundColor: "#ddd",
+                  backgroundColor: darkMode ? "#444" : "#ddd",
+                  color: darkMode ? "#eee" : "#000",
                   border: "none",
                   padding: "5px 10px",
                   borderRadius: "5px",
@@ -222,14 +236,14 @@ const SmallBot = ({ setSmallBot }) => {
           </div>
         </div>
       )}
-
+  
       {/* Input Area */}
       <div
         style={{
           display: "flex",
           padding: "10px",
-          borderTop: "1px solid #ddd",
-          backgroundColor: "#fff",
+          borderTop: `1px solid ${darkMode ? "#444" : "#ddd"}`,
+          backgroundColor: darkMode ? "#1e1e1e" : "#fff",
         }}
       >
         <input
@@ -241,7 +255,9 @@ const SmallBot = ({ setSmallBot }) => {
             flex: 1,
             padding: "8px",
             borderRadius: "5px",
-            border: "1px solid #ccc",
+            border: `1px solid ${darkMode ? "#555" : "#ccc"}`,
+            backgroundColor: darkMode ? "#2e2e2e" : "#fff",
+            color: darkMode ? "#f0f0f0" : "#000",
             outline: "none",
           }}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
@@ -252,7 +268,7 @@ const SmallBot = ({ setSmallBot }) => {
           style={{
             marginLeft: "5px",
             padding: "8px",
-            backgroundColor: "#0078ff",
+            backgroundColor: darkMode ? "#0a84ff" : "#0078ff",
             color: "white",
             border: "none",
             borderRadius: "5px",
@@ -263,8 +279,8 @@ const SmallBot = ({ setSmallBot }) => {
           Send
         </button>
       </div>
-
-      {/* Resize Handle (Left Side) */}
+  
+      {/* Resize Handle */}
       <div
         onMouseDown={handleMouseDown}
         style={{
@@ -279,6 +295,7 @@ const SmallBot = ({ setSmallBot }) => {
       />
     </div>
   );
+  
 };
 
 export default SmallBot;

@@ -3,11 +3,11 @@ import axios from "axios";
 import "../App.css";
 import { marked } from "marked";
 
-const MainBot = () => {
+const MainBot = ({darkMode, setDarkMode}) => {
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [isDisabled, setIsDisable] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
+    // const [darkMode, ] = useState(false);
     const [isPdfChatMode, setIsPdfChatMode] = useState(false); // Chat mode state
     const [uploadedPdfName, setUploadedPdfName] = useState(null); // Track uploaded PDF name
     const INPUTREF = useRef(null);
@@ -19,10 +19,6 @@ const MainBot = () => {
     // Initialize theme on mount
     useEffect(() => {
       INPUTREF.current?.focus();
-  
-      const theme = localStorage.getItem("theme");
-      setDarkMode(theme === "true");
-      document.body.classList.toggle("dark-mode", theme === "true");
     }, []);
   
     // Scroll to bottom when messages update

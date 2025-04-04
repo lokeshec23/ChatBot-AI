@@ -6,10 +6,15 @@ import SmallBot from "./components/SmallBot";
 import MainBot from "./components/MainBot";
 const App = () => {
   const [smallBot, setSmallBot] = useState({ show: false }); // Track small bot state
- 
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    setDarkMode(theme === "true");
+    document.body.classList.toggle("dark-mode", theme === "true");
+  }, []);
   return (
     <div>
-      <MainBot />
+      <MainBot darkMode={darkMode} setDarkMode={setDarkMode} />
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         {!smallBot.show ? (
           <img
@@ -31,7 +36,7 @@ const App = () => {
           />
         ) : (
           <>
-            <SmallBot setSmallBot={setSmallBot}/>
+            <SmallBot setSmallBot={setSmallBot} darkMode={darkMode} setDarkMode={setDarkMode}/>
           </>
         )}
       </div>

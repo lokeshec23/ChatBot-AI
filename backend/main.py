@@ -47,10 +47,20 @@ async def chat(request: ChatRequest):
 
         # Use Groq API to generate a response
         chat_completion = client.chat.completions.create(
-            messages=[
+            # messages=[
+            #     {
+            #         "role": "user",
+            #         "content": user_input,  # Pass the user's input to the API
+            #     }
+            # ],
+             messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert in US mortgage-related topics. Answer questions only related to US mortgage calculations, loan types, interest rates, and related financial concepts. If the question is unrelated, politely inform the user that you only provide US mortgage information."
+                },
                 {
                     "role": "user",
-                    "content": user_input,  # Pass the user's input to the API
+                    "content": user_input,
                 }
             ],
             model="llama-3.3-70b-versatile",  # Specify the Groq model
@@ -137,6 +147,16 @@ async def query_pdf(request: ChatRequest):
                         "content": f"Answer the following question based on the uploaded PDF:\n\nQuestion: {user_query}\n\nPDF Content:\n{pdf_text}",
                     }
                 ],
+            #      messages=[
+            #     {
+            #         "role": "system",
+            #         "content": "You are an expert in US mortgage-related topics. Answer questions only related to US mortgage calculations, loan types, interest rates, and related financial concepts. If the question is unrelated, politely inform the user that you only provide US mortgage information."
+            #     },
+            #     {
+            #         "role": "user",
+            #        "content": f"Answer the following question based on the uploaded PDF:\n\nQuestion: {user_query}\n\nPDF Content:\n{pdf_text}",
+            #     }
+            # ],
                 model="llama-3.3-70b-versatile",  # Specify the Groq model
                 stream=False,  # Disable streaming for simplicity
             )
