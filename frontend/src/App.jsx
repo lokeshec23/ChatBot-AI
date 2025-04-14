@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./App.css";
 import { marked } from "marked";
+
 const App = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
@@ -184,16 +185,19 @@ const App = () => {
 
   return (
     <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
+      {/* Header */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          padding: "10px",
+          borderBottom: "1px solid #ccc",
         }}
       >
-        <div style={{ display: "flex", gap: "10px" }}>
-          <img src="/vite.svg" alt="logo" />
-          <h1>AI Chat Bot</h1>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <img src="/vite.svg" alt="logo" width="40" />
+          <h1 style={{ margin: 0 }}>AI Chat Bot</h1>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
           {/* Dark Mode Toggle Button */}

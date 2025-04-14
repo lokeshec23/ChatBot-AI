@@ -4,21 +4,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
 import os
 from dotenv import load_dotenv
-from pdfplumber import open as pdf_open  # For extracting text from PDFs
+from pdfplumber import open as pdf_open
 import tempfile
+from sentence_transformers import SentenceTransformer
+import chromadb
+from chromadb.utils import embedding_functions
 
 # Load environment variables
 load_dotenv()
 
 app = FastAPI()
 
-# Replace with your actual frontend URL
-FRONTEND_URL = "*"
-
-# Allow frontend to access backend
+# CORS Configuration
+FRONTEND_URL = "http://localhost:5173"  # Replace with your frontend URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],  # Allow only the frontend domain
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,8 +32,15 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# In-memory storage for PDF content (use a database for production)
-pdf_content_store = {}
+# Initialize ChromaDB client and embedding function
+chroma_client = chromadb.Client()
+embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+
+# Create a collection for storing PDF embeddings
+pdf_collection = chroma_client.create_collection(name="pdf_embeddings", embedding_function=embedding_function)
+
+# In-memory storage for conversation history
+conversation_history = {}
 
 class ChatRequest(BaseModel):
     message: str
@@ -40,25 +48,27 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat(request: ChatRequest):
     """
-    Endpoint for general chat. Accepts user input and sends it to Groq API.
+    Endpoint for general chat with memory management.
     """
     try:
         user_input = request.message
 
+        # Retrieve conversation history
+        history = conversation_history.get("general", [])
+        history.append({"role": "user", "content": user_input})
+
         # Use Groq API to generate a response
         chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": user_input,  # Pass the user's input to the API
-                }
-            ],
-            model="llama-3.3-70b-versatile",  # Specify the Groq model
-            stream=False,  # Disable streaming for simplicity
+            messages=history,
+            model="llama-3.3-70b-versatile",
+            stream=False,
         )
 
         # Extract and return the AI's response
         response_text = chat_completion.choices[0].message.content
+        history.append({"role": "assistant", "content": response_text})
+        conversation_history["general"] = history
+
         return {"response": response_text}
 
     except Exception as e:
@@ -68,10 +78,9 @@ async def chat(request: ChatRequest):
 @app.post("/uploadPdf")
 async def upload_pdf(file: UploadFile = File(...)):
     """
-    Endpoint for handling PDF uploads. Extracts text from the PDF and stores it for querying.
+    Endpoint for handling PDF uploads and storing embeddings in ChromaDB.
     """
     try:
-        # Validate file type
         if not file.filename.lower().endswith(".pdf"):
             raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
 
@@ -87,78 +96,92 @@ async def upload_pdf(file: UploadFile = File(...)):
                 for page in pdf.pages:
                     text += page.extract_text()
         finally:
-            # Clean up the temporary file
             os.unlink(temp_file_path)
 
-        # Check if text extraction was successful
         if not text.strip():
             raise HTTPException(status_code=400, detail="Failed to extract text from the PDF.")
 
-        # Store the extracted text in memory (use a unique key, e.g., filename)
-        pdf_content_store[file.filename] = text
+        # Split the text into chunks and store embeddings in ChromaDB
+        chunks = [chunk.strip() for chunk in text.split("\n\n") if chunk.strip()]
+        pdf_collection.add(
+            documents=chunks,
+            metadatas=[{"source": file.filename}] * len(chunks),
+            ids=[f"{file.filename}_{i}" for i in range(len(chunks))],
+        )
 
-        # Return success response
         return {"message": f"PDF '{file.filename}' uploaded successfully."}
 
     except HTTPException as http_err:
-        # Re-raise HTTP exceptions to return proper error responses
         raise http_err
     except Exception as e:
-        # Log unexpected errors and return a generic 500 response
         print(f"Unexpected Error: {str(e)}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 
 @app.post("/queryPdf")
 async def query_pdf(request: ChatRequest):
     """
-    Endpoint for querying the content of an uploaded PDF.
+    Endpoint for querying the content of an uploaded PDF using semantic search.
     """
     try:
         user_query = request.message
 
-        # Check if any PDF content is available
-        if not pdf_content_store:
-            raise HTTPException(status_code=400, detail="No PDF content available. Please upload a PDF first.")
+        # Perform a similarity search in ChromaDB
+        results = pdf_collection.query(
+            query_texts=[user_query],
+            n_results=3,  # Retrieve top 3 most relevant chunks
+        )
 
+        retrieved_chunks = results["documents"][0]
+        context = "\n".join(retrieved_chunks)
+
+        # Use Groq API to generate a response based on the retrieved context
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Answer the following question based on the retrieved PDF content:\n\nQuestion: {user_query}\n\nRetrieved Content:\n{context}",
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            stream=False,
+        )
+
+        response_text = chat_completion.choices[0].message.content
+        return {"response": response_text}
+
+    except Exception as e:
+        print(f"Error in /queryPdf endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process the query.")
+
+@app.post("/summarizePdf")
+async def summarize_pdf():
+    """
+    Endpoint for summarizing the content of the uploaded PDF.
+    """
+    try:
         # Combine all stored PDF content into a single string
-        pdf_text = "\n".join(pdf_content_store.values())
+        pdf_text = "\n".join(pdf_collection.get()["documents"])
 
-        # Truncate the PDF text if it's too long (adjust the limit as needed)
-        MAX_PDF_LENGTH = 5000  # Example: Limit to 5000 characters
+        # Truncate the PDF text if it's too long
+        MAX_PDF_LENGTH = 5000
         if len(pdf_text) > MAX_PDF_LENGTH:
             pdf_text = pdf_text[:MAX_PDF_LENGTH] + "...\n[Content truncated due to length.]"
 
-        # Use Groq API to process the query with the PDF content
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"Answer the following question based on the uploaded PDF:\n\nQuestion: {user_query}\n\nPDF Content:\n{pdf_text}",
-                    }
-                ],
-                model="llama-3.3-70b-versatile",  # Specify the Groq model
-                stream=False,  # Disable streaming for simplicity
-            )
-            response_text = chat_completion.choices[0].message.content
-        except Exception as e:
-            print(f"Groq API Error: {str(e)}")
-            raise HTTPException(status_code=500, detail="Failed to process the query with Groq API.")
+        # Use Groq API to generate a summary
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Summarize the following content in bullet points:\n\n{pdf_text}",
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            stream=False,
+        )
 
-        # Return the AI's response
-        return {"response": response_text}
+        response_text = chat_completion.choices[0].message.content
+        return {"summary": response_text}
 
-    except HTTPException as http_err:
-        # Re-raise HTTP exceptions to return proper error responses
-        raise http_err
     except Exception as e:
-        # Log unexpected errors and return a generic 500 response
-        print(f"Unexpected Error: {str(e)}")
-        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
-
-@app.get("/")
-def home():
-    """
-    Home endpoint to check if the API is running.
-    """
-    return {"message": "Chatbot API is running!"}
+        print(f"Error in /summarizePdf endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate summary.")
