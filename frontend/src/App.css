@@ -2,19 +2,18 @@
 body {
   background-color: #f0f0f0;
   font-family: Arial, sans-serif;
-  height: 100vh;
-  overflow-y: hidden;
+  height: 100dvh;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .chat-container {
   margin: 0 auto;
   width: 95%;
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   background: white;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   padding: 15px;
@@ -22,7 +21,8 @@ body {
 }
 
 .chat-box {
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0; /* Allows flex item to shrink properly */
   border: 1px solid #ddd;
   padding: 10px;
   overflow-y: auto;
@@ -31,6 +31,7 @@ body {
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
+  height: calc(100dvh - 180px); /* Dynamic height calculation */
 }
 
 .message {
@@ -40,7 +41,7 @@ body {
   margin: 8px 0;
   word-wrap: break-word;
   line-height: 1.4;
-  font-size: 15px;
+  font-size: clamp(14px, 3.5dvw, 16px); /* Responsive font size */
 }
 
 .user-message {
@@ -62,6 +63,8 @@ body {
   gap: 8px;
   width: 100%;
   align-items: center;
+  min-height: 60px; /* Minimum height for mobile keyboards */
+  padding-bottom: env(safe-area-inset-bottom); /* Safe area for mobile devices */
 }
 
 input {
@@ -70,7 +73,7 @@ input {
   border: 1px solid #ccc;
   border-radius: 25px;
   outline: none;
-  font-size: 16px;
+  font-size: clamp(14px, 4dvw, 16px);
   min-width: 0;
 }
 
@@ -79,16 +82,17 @@ input {
 .theme-toggle,
 .chat-mode-toggle,
 .upload-button {
-  padding: 12px;
+  padding: max(12px, 2dvh);
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: clamp(14px, 4dvw, 16px);
   transition: all 0.3s;
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px; /* Minimum touch target size */
 }
 
 .send_button {
@@ -115,7 +119,7 @@ input {
 .chat-mode-toggle {
   background: #007bff;
   color: white;
-  padding: 10px 15px;
+  padding: max(10px, 1.5dvh) max(15px, 2dvw);
 }
 
 .theme-toggle:hover,
@@ -126,7 +130,7 @@ input {
 .upload-button {
   background: #007bff;
   color: white;
-  padding: 12px 20px;
+  padding: max(12px, 2dvh) max(20px, 3dvw);
 }
 
 .upload-button:hover {
@@ -140,22 +144,23 @@ input {
   margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 10px;
+  min-height: 60px; /* Ensures header doesn't collapse */
 }
 
 .logo-title-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: max(10px, 2dvw);
 }
 
 .title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: clamp(1.3rem, 6dvw, 1.8rem);
 }
 
 .button-group {
   display: flex;
-  gap: 8px;
+  gap: max(8px, 1dvw);
   flex-wrap: wrap;
 }
 
@@ -231,12 +236,13 @@ input {
 @media (min-width: 600px) {
   .chat-container {
     width: 90%;
-    height: 90vh;
-    margin: 20px auto;
+    height: 90dvh;
+    margin: 5dvh auto;
     border-radius: 10px;
   }
   
   .chat-box {
+    height: calc(90dvh - 180px);
     padding: 15px;
     border-radius: 10px;
   }
@@ -245,14 +251,6 @@ input {
     max-width: 75%;
     padding: 12px 18px;
     margin: 10px 0;
-  }
-  
-  .input-container {
-    gap: 10px;
-  }
-  
-  .title {
-    font-size: 1.8rem;
   }
 }
 
@@ -264,16 +262,10 @@ input {
   
   .message {
     max-width: 70%;
-    font-size: 16px;
   }
   
   .button-group {
     gap: 12px;
-  }
-  
-  .theme-toggle,
-  .chat-mode-toggle {
-    padding: 12px 20px;
   }
 }
 
@@ -295,32 +287,44 @@ input {
 }
 
 /* Mobile-specific adjustments */
-@media (max-width: 480px) {
-  .message {
-    max-width: 90%;
-    padding: 8px 12px;
-    font-size: 14px;
+@media (max-width: 480px) and (orientation: portrait) {
+  .chat-box {
+    height: calc(100dvh - 160px); /* Adjusted for mobile layout */
+  }
+  
+  .input-container {
+    flex-wrap: wrap;
   }
   
   .send_button,
-  .reset-button,
-  .theme-toggle,
-  .chat-mode-toggle,
-  .upload-button {
-    padding: 10px 12px;
-    font-size: 14px;
-  }
-  
-  input {
-    padding: 10px 12px;
-    font-size: 14px;
-  }
-  
-  .title {
-    font-size: 1.3rem;
-  }
-  
-  .chat-box {
-    padding: 8px;
+  .reset-button {
+    flex: 1 0 40%; /* Better button sizing on small screens */
   }
 }
+
+/* Support for mobile viewport units */
+@supports (height: 100dvh) {
+  body {
+    height: 100dvh;
+  }
+  /* .chat-container {
+    height: 100dvh;
+  } */
+  .chat-box {
+    height: calc(100dvh - 180px);
+  }
+}
+
+/* Fallback for browsers that don't support dvh */
+@supports not (height: 100dvh) {
+  body {
+    height: 100vh;
+  }
+  .chat-container {
+    height: 100vh;
+  }
+  .chat-box {
+    height: calc(100vh - 180px);
+  }
+}
+
