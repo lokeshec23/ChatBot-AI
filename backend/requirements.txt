@@ -4,3 +4,4 @@ pydantic
 python-dotenv
 groq  # Add any other dependencies here
 python-multipart
+pdfplumber
