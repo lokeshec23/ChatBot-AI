@@ -4,84 +4,97 @@ body {
   font-family: Arial, sans-serif;
   height: 100vh;
   overflow-y: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .chat-container {
-  margin: 25px auto;
-  width: 60%;
-  height: 85vh;
+  margin: 0 auto;
+  width: 95%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   background: white;
-  border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
 .chat-box {
   flex-grow: 1;
   border: 1px solid #ddd;
-  padding: 15px;
-  height: calc(80vh - 120px);
+  padding: 10px;
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 10px;
 }
 
 .message {
-  max-width: 75%;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 5px;
+  max-width: 85%;
+  padding: 10px 15px;
+  border-radius: 18px;
+  margin: 8px 0;
   word-wrap: break-word;
   line-height: 1.4;
+  font-size: 15px;
 }
 
 .user-message {
   background: #007bff;
   color: white;
   align-self: flex-end;
+  border-bottom-right-radius: 4px;
 }
 
 .ai-message {
   background: #e9ecef;
   color: black;
   align-self: flex-start;
+  border-bottom-left-radius: 4px;
 }
 
 .input-container {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
 }
 
 input {
   flex-grow: 1;
-  padding: 12px;
+  padding: 12px 15px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 25px;
   outline: none;
   font-size: 16px;
+  min-width: 0;
 }
 
 .send_button,
 .reset-button,
 .theme-toggle,
-.chat-mode-toggle {
-  padding: 12px 20px;
+.chat-mode-toggle,
+.upload-button {
+  padding: 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 25px;
   cursor: pointer;
   font-size: 16px;
-  transition: background 0.3s;
+  transition: all 0.3s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .send_button {
   background: #28a745;
   color: white;
+  min-width: 80px;
 }
 
 .send_button:hover {
@@ -91,6 +104,7 @@ input {
 .reset-button {
   background: lightgrey;
   color: #000;
+  min-width: 80px;
 }
 
 .reset-button:hover {
@@ -101,6 +115,7 @@ input {
 .chat-mode-toggle {
   background: #007bff;
   color: white;
+  padding: 10px 15px;
 }
 
 .theme-toggle:hover,
@@ -109,16 +124,39 @@ input {
 }
 
 .upload-button {
-  padding: 12px 20px;
   background: #007bff;
   color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s;
+  padding: 12px 20px;
 }
 
 .upload-button:hover {
   background: #0056b3;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo-title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Dark Mode */
@@ -171,20 +209,118 @@ input {
 
 .dark-mode .theme-toggle,
 .dark-mode .chat-mode-toggle {
-  background: #bbb;
-  color: black;
+  background: #007bff;
+  color: white;
 }
 
 .dark-mode .theme-toggle:hover,
 .dark-mode .chat-mode-toggle:hover {
-  background: #ddd;
+  background: #0056b3;
 }
 
 .dark-mode .upload-button {
-  background: #bbb;
-  color: black;
+  background: #007bff;
+  color: white;
 }
 
 .dark-mode .upload-button:hover {
-  background: #ddd;
+  background: #0056b3;
+}
+
+/* Responsive Styles */
+@media (min-width: 600px) {
+  .chat-container {
+    width: 90%;
+    height: 90vh;
+    margin: 20px auto;
+    border-radius: 10px;
+  }
+  
+  .chat-box {
+    padding: 15px;
+    border-radius: 10px;
+  }
+  
+  .message {
+    max-width: 75%;
+    padding: 12px 18px;
+    margin: 10px 0;
+  }
+  
+  .input-container {
+    gap: 10px;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .chat-container {
+    width: 80%;
+    padding: 25px;
+  }
+  
+  .message {
+    max-width: 70%;
+    font-size: 16px;
+  }
+  
+  .button-group {
+    gap: 12px;
+  }
+  
+  .theme-toggle,
+  .chat-mode-toggle {
+    padding: 12px 20px;
+  }
+}
+
+@media (min-width: 992px) {
+  .chat-container {
+    width: 70%;
+    max-width: 1000px;
+  }
+  
+  .message {
+    max-width: 65%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .chat-container {
+    width: 60%;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 480px) {
+  .message {
+    max-width: 90%;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .send_button,
+  .reset-button,
+  .theme-toggle,
+  .chat-mode-toggle,
+  .upload-button {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .title {
+    font-size: 1.3rem;
+  }
+  
+  .chat-box {
+    padding: 8px;
+  }
 }

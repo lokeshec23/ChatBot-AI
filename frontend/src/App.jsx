@@ -2,18 +2,30 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./App.css";
 import { marked } from "marked";
+
 const App = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [isDisabled, setIsDisable] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [isPdfChatMode, setIsPdfChatMode] = useState(false); // Chat mode state
-  const [uploadedPdfName, setUploadedPdfName] = useState(null); // Track uploaded PDF name
+  const [isPdfChatMode, setIsPdfChatMode] = useState(false);
+  const [uploadedPdfName, setUploadedPdfName] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const INPUTREF = useRef(null);
   const chatBoxRef = useRef(null);
 
   const THINKING_MESSAGE = "Thinking...";
   const ERROR_MESSAGE = "Something went wrong. Please try again.";
+
+  // Check for mobile view on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Initialize theme on mount
   useEffect(() => {
@@ -55,7 +67,6 @@ const App = () => {
     ]);
 
     try {
-      debugger
       const response = await axios.post(
         `${import.meta.env.VITE_REACT_APP_URL}/chat`,
         { message: input }
@@ -110,7 +121,7 @@ const App = () => {
         { sender: "AI", text: response.data.message },
       ]);
 
-      setUploadedPdfName(file.name); // Track the uploaded PDF name
+      setUploadedPdfName(file.name);
     } catch (error) {
       console.error("Error uploading PDF:", error);
 
@@ -168,7 +179,7 @@ const App = () => {
   const resetMessage = () => {
     setInput("");
     setMessages([]);
-    setUploadedPdfName(null); // Clear the uploaded PDF name
+    setUploadedPdfName(null);
     INPUTREF.current?.focus();
   };
 
@@ -176,30 +187,24 @@ const App = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       if (isPdfChatMode && uploadedPdfName) {
-        queryPdf(); // Query the PDF in PDF Chat mode
+        queryPdf();
       } else {
-        sendMessage(); // Send message in General Chat mode
+        sendMessage();
       }
     }
   };
 
   return (
     <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ display: "flex", gap: "10px" }}>
-          <img src="/vite.svg" alt="logo" />
-          <h1>AI Chat Bot</h1>
+      <div className="header-container">
+        <div className="logo-title-container">
+          <img src="/vite.svg" alt="logo" className="logo" />
+          <h1 className="title">AI Chat Bot</h1>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="button-group">
           {/* Dark Mode Toggle Button */}
           <button className="theme-toggle" onClick={toggleTheme}>
-            {darkMode ? "Light Mode" : "Dark Mode"}
+            {isMobile ? (darkMode ? "☀️" : "🌙") : darkMode ? "Light Mode" : "Dark Mode"}
           </button>
 
           {/* Chat Mode Toggle Button */}
@@ -210,7 +215,9 @@ const App = () => {
               setIsPdfChatMode((prev) => !prev);
             }}
           >
-            {isPdfChatMode ? "Switch to General Chat" : "Switch to PDF Chat"}
+            {isMobile 
+              ? (isPdfChatMode ? "📄→💬" : "💬→📄")
+              : (isPdfChatMode ? "Switch to General Chat" : "Switch to PDF Chat")}
           </button>
         </div>
       </div>
@@ -224,7 +231,6 @@ const App = () => {
               msg.sender === "You" ? "user-message" : "ai-message"
             }`}
           >
-            {/* <strong>{msg.sender}: </strong> */}
             {msg.sender === "You" ? (
               <span>{msg.text}</span>
             ) : (
@@ -251,6 +257,7 @@ const App = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
               onKeyDown={handleKeyDown}
+              className="chat-input"
             />
             <button
               onClick={sendMessage}
@@ -258,7 +265,7 @@ const App = () => {
               style={{ opacity: isDisabled ? "0.5" : "1" }}
               disabled={isDisabled}
             >
-              Send
+              {isMobile ? "➤" : "Send"}
             </button>
           </>
         )}
@@ -269,7 +276,7 @@ const App = () => {
             {!uploadedPdfName && (
               <>
                 <label htmlFor="pdf-upload" className="upload-button">
-                  Upload PDF
+                  {isMobile ? "📁 Upload" : "Upload PDF"}
                 </label>
                 <input
                   id="pdf-upload"
@@ -288,8 +295,9 @@ const App = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={`Ask a question about ${uploadedPdfName}`}
+                  placeholder={`Ask about ${isMobile ? uploadedPdfName.substring(0, 10) + "..." : uploadedPdfName}`}
                   onKeyDown={handleKeyDown}
+                  className="chat-input"
                 />
                 <button
                   onClick={queryPdf}
@@ -297,7 +305,7 @@ const App = () => {
                   style={{ opacity: isDisabled ? "0.5" : "1" }}
                   disabled={isDisabled}
                 >
-                  Ask
+                  {isMobile ? "?" : "Ask"}
                 </button>
               </>
             )}
@@ -312,7 +320,7 @@ const App = () => {
             style={{ opacity: isDisabled ? "0.5" : "1" }}
             disabled={isDisabled}
           >
-            Reset
+            {isMobile ? "🔄" : "Reset"}
           </button>
         )}
       </div>
