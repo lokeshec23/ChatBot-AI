@@ -55,6 +55,7 @@ const App = () => {
     ]);
 
     try {
+      debugger
       const response = await axios.post(
         `${import.meta.env.VITE_REACT_APP_URL}/chat`,
         { message: input }

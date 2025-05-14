@@ -1,46 +1,25 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from fastapi.middleware.cors import CORSMiddleware
-import torch
+import os
 
-app = FastAPI()
+from groq import Groq
 
-# Allow frontend to access backend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (or use ["http://localhost:5173"] for security)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# client = Groq(
+#     api_key=os.environ.get("GROQ_API_KEY"),
+# )
+# Fetch API Key
+# GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# if not GROQ_API_KEY:
+#     raise ValueError("GROQ_API_KEY is missing in the .env file!")
+
+client = Groq(api_key="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")
+
+chat_completion = client.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": "Explain the importance of fast language models",
+        }
+    ],
+    model="llama-3.3-70b-versatile",
 )
 
-# Load a better AI model (BlenderBot)
-MODEL_NAME = "facebook/blenderbot-400M-distill"
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
-
-class ChatRequest(BaseModel):
-    message: str
-
-@app.post("/chat")
-async def chat(request: ChatRequest):
-    
-    try:
-        user_input = request.message
-
-        # Tokenize input
-        input_ids = tokenizer(user_input, return_tensors="pt").input_ids
-
-        # Generate response
-        response_ids = model.generate(input_ids, max_length=100)
-        response_text = tokenizer.decode(response_ids[0], skip_special_tokens=True)
-
-        return {"response": response_text}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/")
-def home():
-    return {"message": "Chatbot API is running!"}
+print(chat_completion.choices[0].message.content)
